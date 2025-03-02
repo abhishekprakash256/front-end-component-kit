@@ -1,29 +1,46 @@
-// In the component where useState is used
 'use client';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/style.css';
+import '../styles/NavBar.css';
+import React, { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import '../styles/style.css'; // the custom import file
-import '../styles/NavBar.css'; // the custom import file
-import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 
-const NavBar: React.FC = () => {
-  const [theme, setTheme] = useState('light'); // Default theme
-  const [isThemeInitialized, setIsThemeInitialized] = useState(false); // Track if the theme is ready
+// ✅ Safe useRouterHook to avoid window issues
+const useRouterHook = (router?: any) => {
+  if (typeof window === 'undefined') {
+    return router || {}; // Return a fallback object on the server
+  }
+  return router || window.history;
+};
+
+interface NavBarProps {
+  router?: any;
+}
+
+const NavBar: React.FC<NavBarProps> = ({ router }) => {
+  const [theme, setTheme] = useState('light');
+  const [isThemeInitialized, setIsThemeInitialized] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // ✅ Ensure safe navigation handling
+  const navigation = useRouterHook(router);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    setIsThemeInitialized(true); // Mark theme as initialized
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      setTheme(savedTheme);
+      setIsThemeInitialized(true);
+    }
   }, []);
 
   useEffect(() => {
-    if (isThemeInitialized) {
+    if (isThemeInitialized && typeof window !== 'undefined') {
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
     }
@@ -33,9 +50,19 @@ const NavBar: React.FC = () => {
     setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (searchTerm.trim()) {
+      if (navigation && typeof navigation.push === 'function') {
+        navigation.push(`/search/${encodeURIComponent(searchTerm)}`);
+      } else if (typeof window !== 'undefined') {
+        window.location.href = `/search/${encodeURIComponent(searchTerm)}`;
+      }
+    }
+  };
+
   if (!isThemeInitialized) {
-    // Avoid rendering the component until the theme is initialized
-    return null;
+    return null; // ✅ Prevent rendering before initialization
   }
 
   return (
@@ -78,19 +105,25 @@ const NavBar: React.FC = () => {
               Contact
             </Nav.Link>
           </Nav>
-          <Form className="d-flex">
+
+          {/* Search Form */}
+          <Form className="d-flex" onSubmit={handleSearch}>
             <Form.Control
-              type="search"   
+              type="search"
               placeholder="Search"
               className="me-2 custom-border form-control custom-placeholder"
               aria-label="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button className="button-custom-color">Search</Button>
+            <Button className="button-custom-color" type="submit">
+              Search
+            </Button>
           </Form>
         </Navbar.Collapse>
       </Container>
     </Navbar>
   );
-}
+};
 
 export default NavBar;
