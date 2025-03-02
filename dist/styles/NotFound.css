@@ -1,0 +1,26 @@
+.not-found-title {
+font-size: 3rem; /* Increased size */
+font-weight: 500; /* Bolder */
+text-transform: uppercase;
+letter-spacing: 2px;
+padding: 20px;
+font-family: 'Helvetica';
+}
+
+
+
+.background-color-body {
+    background-color: var(--background-color); /* Replace #ff0000 with the color of your choice */
+  }
+
+
+  .font-color-class {
+    color: var(--blue-text-color); /* Replace #0000ff with the color of your choice */
+  }
+
+ 
+
+
+
+
+  

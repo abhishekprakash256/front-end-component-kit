@@ -16,6 +16,7 @@ import PaginationExp from './components/PaignatationExp'
 import CardsPaignation from './components/CardsPaignation';
 import AboutPic from './components/AboutPic';
 import ButtonBar from './components/ButtonBar';
+import NotFound from './components/NotFound';
 
 // import the data 
 
@@ -235,6 +236,8 @@ function App() {
   kaggle_link={socialLinks[5]}
   medium_link=""
 />
+
+<NotFound></NotFound>
 
 <Para description={ description }/>
 
